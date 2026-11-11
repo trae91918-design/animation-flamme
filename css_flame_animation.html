@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation de Flamme CSS Interactive</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Flame Canvas Container */
+        .flame-viewport {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 380px;
+            background: radial-gradient(circle at center, #1a0b00 0%, #050505 70%);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        /* Dynamic Glow Background */
+        .ambient-glow {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 69, 0, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+            animation: ambient-pulse 2s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        /* Main Flame Container */
+        .flame-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            transform-origin: center bottom;
+            animation: flame-flicker var(--flicker-speed, 150ms) ease-in infinite alternate;
+        }
+
+        /* Base shape for flame elements */
+        .flame-layer {
+            position: absolute;
+            bottom: 0;
+            border-bottom-right-radius: 50%;
+            border-bottom-left-radius: 50%;
+            border-top-left-radius: 50%;
+            transform: rotate(-45deg);
+            transition: all 0.2s ease;
+        }
+
+        /* 1. Red Flame Layer */
+        .flame-red {
+            left: 0px;
+            width: 80px;
+            height: 80px;
+            background: var(--color-red, #FF2400);
+            box-shadow: 0px 0px 20px 6px var(--color-red, #FF2400);
+            opacity: 0.95;
+        }
+
+        /* 2. Orange Flame Layer */
+        .flame-orange {
+            left: 10px;
+            width: 60px;
+            height: 60px;
+            background: var(--color-orange, #FF8C00);
+            box-shadow: 0px 0px 18px 6px var(--color-orange, #FF8C00);
+        }
+
+        /* 3. Yellow Flame Layer */
+        .flame-yellow {
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: var(--color-yellow, #FFD700);
+            box-shadow: 0px 0px 15px 5px var(--color-yellow, #FFD700);
+        }
+
+        /* 4. White Flame Core */
+        .flame-white {
+            left: 25px;
+            bottom: 4px;
+            width: 30px;
+            height: 30px;
+            background: var(--color-white, #FFFFFF);
+            box-shadow: 0px 0px 15px 6px var(--color-white, #FFFFFF);
+        }
+
+        /* Base Circles */
+        .circle-layer {
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        /* 5. Blue Inner Base */
+        .flame-blue {
+            width: 24px;
+            height: 24px;
+            left: 28px;
+            bottom: -10px;
+            background: var(--color-blue, #4169E1);
+            box-shadow: 0px 0px 20px 12px var(--color-blue, #4169E1);
+            z-index: 10;
+        }
+
+        /* Flame Base Shadow / Mask */
+        .flame-base-dark {
+            width: 60px;
+            height: 30px;
+            left: 10px;
+            bottom: -35px;
+            background: #050505;
+            box-shadow: 0px 0px 20px 15px #050505;
+            z-index: 11;
+        }
+
+        /* Floating Sparks Particle Animation */
+        .spark {
+            position: absolute;
+            bottom: 120px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #FFD700;
+            box-shadow: 0 0 6px #FF4500;
+            opacity: 0;
+            animation: rise 2s infinite linear;
+        }
+
+        @keyframes rise {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-180px) scale(0.2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes ambient-pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.15); opacity: 0.9; }
+        }
+
+        /* Realistic Flame Flickering Keyframes */
+        @keyframes flame-flicker {
+            0% {
+                transform: rotate(-1deg) scaleX(0.98) scaleY(1);
+            }
+            25% {
+                transform: rotate(1.5deg) scaleX(1.02) scaleY(1.05);
+            }
+            50% {
+                transform: rotate(-2deg) scaleX(0.95) scaleY(0.97);
+            }
+            75% {
+                transform: rotate(2deg) scaleX(1.03) scaleY(1.08);
+            }
+            100% {
+                transform: rotate(-0.5deg) scaleX(1) scaleY(0.99);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-orange-500 selection:text-white">
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-tr from-red-600 to-amber-400 rounded-xl shadow-lg shadow-orange-500/20">
+                    <i data-lucide="flame" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Animation Flamme CSS</h1>
+                    <p class="text-xs text-slate-400">Effets multicouches réalistes & contrôle en direct</p>
+                </div>
+            </div>
+            
+            <button id="shareBtn" class="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-semibold px-4 py-2 rounded-lg text-sm transition-all shadow-md shadow-orange-500/10 active:scale-95">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+                <span>Partager</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-5xl mx-auto px-4 py-8 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Flame Display Canvas -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+            <div class="flame-viewport shadow-2xl border border-slate-800/80">
+                <div class="ambient-glow" id="ambientGlow"></div>
+                
+                <!-- Sparks Container -->
+                <div id="sparksContainer" class="absolute inset-0 pointer-events-none"></div>
+
+                <!-- Flame Graphic Structure -->
+                <div class="flame-wrapper" id="flameWrapper">
+                    <div class="flame-red flame-layer" id="layerRed"></div>
+                    <div class="flame-orange flame-layer" id="layerOrange"></div>
+                    <div class="flame-yellow flame-layer" id="layerYellow"></div>
+                    <div class="flame-white flame-layer" id="layerWhite"></div>
+                    <div class="flame-blue circle-layer" id="layerBlue"></div>
+                    <div class="flame-base-dark circle-layer"></div>
+                </div>
+            </div>
+
+            <!-- Toast / Message Box -->
+            <div id="toast" class="hidden flex items-center justify-between p-4 rounded-xl bg-slate-900 border border-slate-700 text-sm shadow-xl transition-all">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="check-circle-2" class="text-emerald-400 w-5 h-5"></i>
+                    <span id="toastMsg" class="text-slate-200">Lien copié dans le presse-papier !</span>
+                </div>
+                <button onclick="hideToast()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Control Panel & Settings -->
+        <div class="lg:col-span-5 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h2 class="font-semibold text-base flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-orange-400"></i>
+                    Personnalisation
+                </h2>
+                <button id="resetBtn" class="text-xs text-slate-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reinitialiser
+                </button>
+            </div>
+
+            <!-- Controls List -->
+            <div class="space-y-4">
+                <!-- Scale Control -->
+                <div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <label for="scaleInput">Taille de la flamme</label>
+                        <span id="scaleVal" class="text-slate-200 font-mono">1.2x</span>
+                    </div>
+                    <input type="range" id="scaleInput" min="0.6" max="2" step="0.1" value="1.2"
+                           class="w-full accent-orange-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <!-- Flicker Speed -->
+                <div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <label for="speedInput">Vitesse de scintillation</label>
+                        <span id="speedVal" class="text-slate-200 font-mono">150ms</span>
+                    </div>
+                    <input type="range" id="speedInput" min="50" max="400" step="10" value="150"
+                           class="w-full accent-orange-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <!-- Sparks Toggle -->
+                <div class="flex items-center justify-between py-2 border-t border-b border-slate-800/60">
+                    <span class="text-sm font-medium text-slate-300">Étincelles volantes</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="sparksToggle" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                    </label>
+                </div>
+
+                <!-- Colors Customization -->
+                <div class="space-y-3 pt-2">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Couleurs des couches</h3>
+                    
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
+                            <span>Base (Bleu)</span>
+                            <input type="color" id="colorBlue" value="#4169E1" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0">
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
+                            <span>Extérieur (Rouge)</span>
+                            <input type="color" id="colorRed" value="#FF2400" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0">
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
+                            <span>Moyen (Orange)</span>
+                            <input type="color" id="colorOrange" value="#FF8C00" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0">
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
+                            <span>Intérieur (Jaune)</span>
+                            <input type="color" id="colorYellow" value="#FFD700" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Copy Action -->
+            <div class="pt-4 border-t border-slate-800">
+                <button id="copyCssBtn" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 rounded-xl text-sm transition-all border border-slate-700">
+                    <i data-lucide="code" class="w-4 h-4 text-orange-400"></i>
+                    Copier le code CSS
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/60 py-4 text-center text-xs text-slate-500">
+        Conçu avec HTML5 & Pure CSS Animation
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Elements
+        const flameWrapper = document.getElementById('flameWrapper');
+        const ambientGlow = document.getElementById('ambientGlow');
+        const scaleInput = document.getElementById('scaleInput');
+        const scaleVal = document.getElementById('scaleVal');
+        const speedInput = document.getElementById('speedInput');
+        const speedVal = document.getElementById('speedVal');
+        const sparksToggle = document.getElementById('sparksToggle');
+        const sparksContainer = document.getElementById('sparksContainer');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        
+        // Color Inputs
+        const colorBlue = document.getElementById('colorBlue');
+        const colorRed = document.getElementById('colorRed');
+        const colorOrange = document.getElementById('colorOrange');
+        const colorYellow = document.getElementById('colorYellow');
+
+        // Initial setup
+        function applyFlameStyles() {
+            const scale = scaleInput.value;
+            const speed = speedInput.value;
+
+            flameWrapper.style.transform = `scale(${scale})`;
+            flameWrapper.style.setProperty('--flicker-speed', `${speed}ms`);
+
+            // Apply color custom CSS variables
+            document.documentElement.style.setProperty('--color-blue', colorBlue.value);
+            document.documentElement.style.setProperty('--color-red', colorRed.value);
+            document.documentElement.style.setProperty('--color-orange', colorOrange.value);
+            document.documentElement.style.setProperty('--color-yellow', colorYellow.value);
+
+            // Update ambient glow color dynamically
+            ambientGlow.style.background = `radial-gradient(circle, ${colorOrange.value}40 0%, rgba(0, 0, 0, 0) 70%)`;
+
+            // Labels
+            scaleVal.textContent = `${scale}x`;
+            speedVal.textContent = `${speed}ms`;
+        }
+
+        // Particle generator (Sparks)
+        let particleInterval;
+        function createSparks() {
+            if (!sparksToggle.checked) {
+                sparksContainer.innerHTML = '';
+                clearInterval(particleInterval);
+                return;
+            }
+
+            if (particleInterval) clearInterval(particleInterval);
+            
+            particleInterval = setInterval(() => {
+                if (!sparksToggle.checked) return;
+                
+                const spark = document.createElement('div');
+                spark.className = 'spark';
+                
+                // Random position and timing
+                const leftPos = Math.random() * 60 + 20; // %
+                const duration = Math.random() * 1.5 + 1; // 1s - 2.5s
+                const size = Math.random() * 4 + 2; // 2px - 6px
+                
+                spark.style.left = `${leftPos}%`;
+                spark.style.width = `${size}px`;
+                spark.style.height = `${size}px`;
+                spark.style.animationDuration = `${duration}s`;
+                spark.style.background = colorYellow.value;
+
+                sparksContainer.appendChild(spark);
+
+                // Clean up after animation ends
+                setTimeout(() => {
+                    spark.remove();
+                }, duration * 1000);
+            }, 300);
+        }
+
+        // Event Listeners
+        scaleInput.addEventListener('input', applyFlameStyles);
+        speedInput.addEventListener('input', applyFlameStyles);
+        colorBlue.addEventListener('input', applyFlameStyles);
+        colorRed.addEventListener('input', applyFlameStyles);
+        colorOrange.addEventListener('input', applyFlameStyles);
+        colorYellow.addEventListener('input', applyFlameStyles);
+        
+        sparksToggle.addEventListener('change', createSparks);
+
+        // Reset Settings
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            scaleInput.value = 1.2;
+            speedInput.value = 150;
+            colorBlue.value = '#4169E1';
+            colorRed.value = '#FF2400';
+            colorOrange.value = '#FF8C00';
+            colorYellow.value = '#FFD700';
+            sparksToggle.checked = true;
+            
+            applyFlameStyles();
+            createSparks();
+            showToast("Paramètres réinitialisés avec succès");
+        });
+
+        // Toast notifications
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        function hideToast() {
+            toast.classList.add('hidden');
+        }
+
+        // Share button (Copy current URL)
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            const currentUrl = window.location.href;
+            
+            // Clipboard fallback
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = currentUrl;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+            showToast("Lien copié ! Vous pouvez l'envoyer à vos amis.");
+        });
+
+        // Copy Raw CSS code
+        document.getElementById('copyCssBtn').addEventListener('click', () => {
+            const cssSnippet = `.flame {
+  width: 80px; height: 80px;
+  transform-origin: center bottom;
+  animation: flicker ${speedInput.value}ms ease-in infinite alternate;
+}
+.flame-layer {
+  position: absolute; bottom: 0;
+  border-radius: 50% 50% 0 50%;
+  transform: rotate(-45deg);
+}`;
+            const dummy = document.createElement('textarea');
+            document.body.appendChild(dummy);
+            dummy.value = cssSnippet;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+            showToast("Snippet CSS copié dans le presse-papier !");
+        });
+
+        // Start animation & particles on load
+        applyFlameStyles();
+        createSparks();
+    </script>
+</body>
+
+</html>
